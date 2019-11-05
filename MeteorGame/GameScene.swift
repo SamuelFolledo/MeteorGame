@@ -103,9 +103,17 @@ class GameScene: SKScene {
     }
     
     func meteorDidCollideWithEarth(meteor: SKSpriteNode, earth: SKSpriteNode) {
-      print("Hit")
-      meteor.removeFromParent()
-      earth.removeFromParent()
+        print("Hit")
+        let explosion = SKEmitterNode(fileNamed: "Explosion")!
+        explosion.position = earth.position
+        addChild(explosion) //add the explosion to earth
+        run(SKAction.playSoundFileNamed("explosion.mp3", waitForCompletion: false)) //play sound
+        meteor.removeFromParent()
+        earth.removeFromParent()
+        self.run(SKAction.wait(forDuration: 2)) { //wait 2 seconds before removing explosion
+            explosion.removeFromParent()
+        }
+        
     }
     
     func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
