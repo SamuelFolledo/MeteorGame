@@ -84,6 +84,14 @@ class GameScene: SKScene {
         earth.name = "earth"
         let earthRotating = SKAction.rotate(byAngle: .pi/3, duration: 1)
         earth.run(SKAction.repeatForever(earthRotating))
+        //PHYSICS BODY
+        earth.physicsBody = SKPhysicsBody(circleOfRadius: earth.size.width/2)
+        earth.physicsBody?.isDynamic = true //not affected by outside physics engine
+        earth.physicsBody?.categoryBitMask = PhysicsCategory.earth //physics body is earth
+        earth.physicsBody?.contactTestBitMask = PhysicsCategory.meteor //can bump with meteor
+        earth.physicsBody?.collisionBitMask = PhysicsCategory.none //none
+        earth.physicsBody?.usesPreciseCollisionDetection = true //precise
+
         return earth
     }
     
