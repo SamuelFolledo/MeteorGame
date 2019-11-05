@@ -16,10 +16,11 @@ class GameScene: SKScene {
     var round:Int = 1
     var numberOfMeteor: Int = 1
     
+    
     //Set up properties of the scoreLabel
     var scoreLabel: SKLabelNode = {
         let label = SKLabelNode()
-        label.text = "0"
+        label.text = "Score: 0"
         label.color = .white
         label.fontSize = 50
         
@@ -42,10 +43,13 @@ class GameScene: SKScene {
     
     func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
         numberOfMeteor = round
+//        let sceneHeight = view!.scene!.frame.height
+        let sceneWidth = view!.scene!.frame.width
         for _ in 0..<round {
             let meteor: SKSpriteNode = SKSpriteNode(imageNamed: "meteor.png")
             meteor.setScale(0.1) //scale it to 10% its original size
-            meteor.position = CGPoint(x: 10, y: self.view!.frame.height)
+            let randomX:CGFloat = CGFloat.random(in: 0 ..< sceneWidth)
+            meteor.position = CGPoint(x: randomX, y: self.view!.frame.height)
             meteor.name = "meteor"
             addChild(meteor)
             let falling = SKAction.moveTo(y: 0, duration: 2)
@@ -101,7 +105,7 @@ class GameScene: SKScene {
             
             if touchedNode.name == "meteor" { //check if we touched a node named meteor, if it is then increment our score, update scoreLabel and remove that touchedNode. Also decrement number of meteor
                 score += 1
-                scoreLabel.text = "\(score)"
+                scoreLabel.text = "Score: \(score)"
                 touchedNode.removeFromParent()
                 numberOfMeteor-=1
                 if numberOfMeteor == 0 { //if number of meteor is 0 then incredement round and start another meteor shower
