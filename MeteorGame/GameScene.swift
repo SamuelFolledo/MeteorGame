@@ -58,7 +58,7 @@ class GameScene: SKScene {
     func setupGame() {
         physicsWorld.gravity = .zero
         physicsWorld.contactDelegate = self
-        explosionEffect = SKEmitterNode(fileNamed: "Explosion")!
+//        explosionEffect = SKEmitterNode(fileNamed: "Explosion")! //preload explosion effect and sound so it won't cause any delay
         explosionSound = SKAction.playSoundFileNamed("explosion.mp3", waitForCompletion: false)
         bgStars = SKEmitterNode(fileNamed: "Starfield")
         bgStars.position = CGPoint(x: 0, y: scene!.size.height)
@@ -112,15 +112,9 @@ class GameScene: SKScene {
     }
     
     func meteorDidCollideWithEarth(meteor: SKSpriteNode, earth: SKSpriteNode) {
-        print("Hit")
-        explosionEffect.position = earth.position
-        addChild(explosionEffect) //add the explosionEffect to earth
-        run(explosionSound) //play sound
+        print("Earth is hit, game over")
         meteor.removeFromParent()
-        earth.removeFromParent()
-        self.run(SKAction.wait(forDuration: 2)) { //wait 2 seconds before removing explosionEffect
-            self.explosionEffect.removeFromParent()
-        }
+        explodeEffect(from: earth)
     }
     
     func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
@@ -183,8 +177,20 @@ class GameScene: SKScene {
             if touchedNode.name == "meteor" { //check if we touched a node named meteor
                 score += 1
                 scoreLabel.text = "Score: \(score)"
+                explodeEffect(from: touchedNode as! SKSpriteNode)
                 removeMeteor(node: touchedNode as! SKSpriteNode)
             }
+        }
+    }
+    
+    func explodeEffect(from node: SKSpriteNode) {
+        explosionEffect = SKEmitterNode(fileNamed: "Explosion")! //call our Explosion.sks file
+        explosionEffect.position = node.position
+        explosionEffect.zPosition = -1
+        addChild(explosionEffect) //add the explosionEffect to earth
+        run(explosionSound) //play sound
+        self.run(SKAction.wait(forDuration: 1)) { //wait 2 seconds before removing explosionEffect
+            self.explosionEffect.removeFromParent()
         }
     }
     
