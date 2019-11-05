@@ -80,12 +80,10 @@ class GameScene: SKScene {
         let sceneWidth = view!.scene!.frame.width
         let earth: SKSpriteNode = SKSpriteNode(imageNamed: "earth.png")
         earth.setScale(0.35) //scale it to 10% its original size
-        earth.zRotation = CGFloat.pi
         earth.position = CGPoint(x: sceneWidth / 2, y: 0)
         earth.name = "earth"
-//        let randomDuration:TimeInterval = TimeInterval.random(in: 1.5 ..< 3.5)
-//        let meteorFalling = SKAction.moveTo(y: -earth.size.height / 2, duration: randomDuration)
-//        earth.run(meteorFalling)
+        let earthRotating = SKAction.rotate(byAngle: .pi/3, duration: 1)
+        earth.run(SKAction.repeatForever(earthRotating))
         return earth
     }
     
