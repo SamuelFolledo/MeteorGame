@@ -28,9 +28,9 @@ class GameScene: SKScene {
         label.fontSize = 50
         return label
     }()
-    var roundLabel: SKLabelNode = {
+    var dayLabel: SKLabelNode = {
         let label = SKLabelNode()
-        label.text = "Round: 1"
+        label.text = "Day: 1"
         label.color = .white
         label.fontSize = 20
         return label
@@ -154,15 +154,15 @@ class GameScene: SKScene {
         scoreLabel.position.y = view!.bounds.height - 80
         addChild(scoreLabel)
         
-        roundLabel.position.x = view!.bounds.width / 8
-        roundLabel.position.y = view!.bounds.height - 40
-        addChild(roundLabel)
+        dayLabel.position.x = view!.bounds.width / 8
+        dayLabel.position.y = view!.bounds.height - 40
+        addChild(dayLabel)
     }
     
     
     func nextRound() {
         round+=1
-        roundLabel.text = "Round: \(round)"
+        dayLabel.text = "Day: \(round)"
     }
     
     
