@@ -28,6 +28,13 @@ class GameScene: SKScene {
         label.fontSize = 50
         return label
     }()
+    var highScoreLabel: SKLabelNode = {
+        let label = SKLabelNode()
+        label.text = "Highscore: 0"
+        label.color = .white
+        label.fontSize = 20
+        return label
+    }()
     var dayLabel: SKLabelNode = {
         let label = SKLabelNode()
         label.text = "Day: 1"
@@ -38,6 +45,7 @@ class GameScene: SKScene {
     var explosionEffect: SKEmitterNode!
     var explosionSound: SKAction!
     var isGameOver: Bool = false
+    let kHIGHSCORE: String = "highScore"
     
     override func didMove(to view: SKView) {
         setupGame()
@@ -117,6 +125,17 @@ class GameScene: SKScene {
         isGameOver = true
         explodeEffect(from: meteor)
         earth.removeFromParent()
+        checkHighScore()
+    }
+    
+    func checkHighScore() {
+        let highScore = UserDefaults.standard.integer(forKey: kHIGHSCORE)
+        if self.score > highScore {
+            UserDefaults.standard.set(self.score, forKey: kHIGHSCORE)
+            UserDefaults.standard.synchronize() //set the high score
+            highScoreLabel.text = "Highscore: \(UserDefaults.standard.integer(forKey: kHIGHSCORE))" //put the highschore on text
+        }
+        
     }
     
     func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
@@ -153,6 +172,11 @@ class GameScene: SKScene {
         dayLabel.position.x = view!.bounds.width / 8
         dayLabel.position.y = view!.bounds.height - 40
         addChild(dayLabel)
+        
+        highScoreLabel.position.x = view!.bounds.width - highScoreLabel.frame.width / 2 - 10
+        highScoreLabel.position.y = view!.bounds.height - 40
+        addChild(highScoreLabel)
+        highScoreLabel.text = "Highscore: \(UserDefaults.standard.integer(forKey: kHIGHSCORE))"
     }
     
     func nextRound() {
