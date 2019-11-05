@@ -44,6 +44,7 @@ class GameScene: SKScene {
     }
     
     override func update(_ currentTime: TimeInterval) {
+        moveBG()
         for meteor in meteors {
             if meteor.position.y < 0 {
                 removeMeteor(node: meteor)
@@ -109,6 +110,25 @@ class GameScene: SKScene {
         }
     }
     
+    func backgroundSetup() {
+        for i in 0...3 {
+            let bg = SKSpriteNode(imageNamed: "bg.jpg")
+            bg.name = "universe"
+            bg.size = CGSize(width: self.scene!.size.width, height: self.view!.frame.height)
+            bg.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+            bg.position = CGPoint(x: CGFloat(i) * bg.size.width, y: -self.frame.size.height / 2) //puts the background next to each other
+            addChild(bg)
+        }
+    }
+    
+    func moveBG() {
+        self.enumerateChildNodes(withName: "universe") { (node, error) in
+            node.position.x -= 2
+            if node.position.x < -((self.scene?.size.width)!) {
+                node.position.x += (self.scene?.size.width)! * 3 //3 is for the amount of time we are looping the bg in bgSetup()
+            }
+        }
+    }
     
     func labelSetUp() {
         scoreLabel.position.x = view!.bounds.width / 2
