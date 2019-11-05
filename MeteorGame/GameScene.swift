@@ -20,6 +20,7 @@ class GameScene: SKScene {
     var score = 0
     var round:Int = 1
     var meteors:[SKSpriteNode] = []
+    var bgStars:SKEmitterNode!
     var scoreLabel: SKLabelNode = {
         let label = SKLabelNode()
         label.text = "Score: 0"
@@ -38,6 +39,11 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         physicsWorld.gravity = .zero
         physicsWorld.contactDelegate = self
+        bgStars = SKEmitterNode(fileNamed: "Starfield")
+        bgStars.position = CGPoint(x: 0, y: scene!.size.height)
+        bgStars.advanceSimulationTime(10) //advance the simulation
+        addChild(bgStars)
+        bgStars.zPosition = -2
         startMeteorShower()
         labelSetUp()
         addChild(createEarth()) //called it here so the meteors would be in the front
