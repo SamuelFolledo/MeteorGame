@@ -10,14 +10,9 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene {
-    //Initialize score starting at 0
     var score = 0
-    
     var round:Int = 1
-    var numberOfMeteor: Int = 1
-    
-    
-    //Set up properties of the scoreLabel
+    var meteors:[SKSpriteNode] = []
     var scoreLabel: SKLabelNode = {
         let label = SKLabelNode()
         label.text = "Score: 0"
@@ -25,7 +20,6 @@ class GameScene: SKScene {
         label.fontSize = 50
         return label
     }()
-    
     var roundLabel: SKLabelNode = {
         let label = SKLabelNode()
         label.text = "Round: 1"
@@ -35,22 +29,23 @@ class GameScene: SKScene {
     }()
     
     override func didMove(to view: SKView) {
-        //Called when the scene has been displayed
-        
-        //TODO: Create three squares with the names one,two,three
         startMeteorShower()
-        
-        //Setup the scoreLabel
         labelSetUp()
     }
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
+        for meteor in meteors {
+            if meteor.position.y < 0 {
+                removeMeteor(node: meteor)
+            }
+        }
+        if meteors.count == 0 {
+            nextRound()
+            startMeteorShower()
+        }
     }
     
     func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
-        numberOfMeteor = round
-//        let sceneHeight = view!.scene!.frame.height
         let sceneWidth = view!.scene!.frame.width
         for _ in 0..<round {
             let meteor: SKSpriteNode = SKSpriteNode(imageNamed: "meteor.png")
@@ -59,8 +54,12 @@ class GameScene: SKScene {
             meteor.position = CGPoint(x: randomX, y: self.view!.frame.height)
             meteor.name = "meteor"
             addChild(meteor)
-            let falling = SKAction.moveTo(y: 0, duration: 2)
-            meteor.run(falling)
+            let randomDuration:TimeInterval = TimeInterval.random(in: 1.5 ..< 3.5)
+            let meteorFalling = SKAction.moveTo(y: -meteor.size.height / 2, duration: randomDuration)
+            meteor.run(meteorFalling)
+//            let meteorRemoving = SKAction.removeFromParent()
+//            meteor.run(SKAction.sequence([meteorFalling, meteorRemoving]))
+            meteors.append(meteor)
         }
     }
     
@@ -70,23 +69,15 @@ class GameScene: SKScene {
         scoreLabel.position.y = view!.bounds.height - 80
         addChild(scoreLabel)
         
-        roundLabel.position.x = view!.bounds.width / 10
+        roundLabel.position.x = view!.bounds.width / 8
         roundLabel.position.y = view!.bounds.height - 40
         addChild(roundLabel)
-    }
-    
-    
-    func didTapAMeteor() { //increment our score, update scoreLabel and remove that touchedNode. Also decrement number of meteor
-        score += 1
-        scoreLabel.text = "Score: \(score)"
-        numberOfMeteor-=1
     }
     
     
     func nextRound() {
         round+=1
         roundLabel.text = "Round: \(round)"
-        startMeteorShower()
     }
     
     
@@ -104,15 +95,18 @@ class GameScene: SKScene {
         for touch in touches {
             let location = touch.location(in: self) //Grab the position of that touch value
             let touchedNode = self.atPoint(location)
-            
             if touchedNode.name == "meteor" { //check if we touched a node named meteor
-                touchedNode.removeFromParent() //then remove it
-                didTapAMeteor()
-                if numberOfMeteor == 0 { //if number of meteor is 0 then incredement round and start another meteor shower
-                    nextRound()
-                }
+                score += 1
+                scoreLabel.text = "Score: \(score)"
+                removeMeteor(node: touchedNode as! SKSpriteNode)
             }
         }
     }
     
+    func removeMeteor(node: SKSpriteNode) { //increment our score, update scoreLabel and remove that touchedNode. Also decrement number of meteor
+        node.removeFromParent() //then remove it
+        node.removeChildren(in: meteors)
+        guard let index = meteors.firstIndex(of: node) else { print("meteor index does not exist"); return }
+        meteors.remove(at: index)
+    }
 }
