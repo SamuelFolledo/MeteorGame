@@ -40,7 +40,8 @@ class GameScene: SKScene {
         // Called before each frame is rendered
     }
     
-    func startMeteorShower() {
+    func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
+        numberOfMeteor = round
         for _ in 0..<round {
             let meteor: SKSpriteNode = SKSpriteNode(imageNamed: "meteor.png")
             meteor.setScale(0.1) //scale it to 10% its original size
