@@ -68,11 +68,12 @@ class GameScene: SKScene {
 //            let meteorRemoving = SKAction.removeFromParent()
 //            meteor.run(SKAction.sequence([meteorFalling, meteorRemoving]))
         //PHYSICSBODY
-        meteor.physicsBody = SKPhysicsBody(rectangleOf: meteor.size) // create a physic body
-        meteor.physicsBody?.isDynamic = true // physics engine will not control the movement of the meteor
-        meteor.physicsBody?.categoryBitMask = PhysicsCategory.meteor // the category bitmask tells what type of body our meteor is
-        meteor.physicsBody?.contactTestBitMask = PhysicsCategory.earth // this triggers something if our meteor collides with a physics body with a category bit mas of earth //listens to meteor and any contact with a physics body that has the physics category of earth
-        meteor.physicsBody?.collisionBitMask = PhysicsCategory.none // collisionBitMask indicates what categories of objects this object that the physics engine handle contact responses to
+        meteor.physicsBody = SKPhysicsBody(circleOfRadius: meteor.size.width/2)
+        meteor.physicsBody?.isDynamic = true //not affected by outside physics engine
+        meteor.physicsBody?.categoryBitMask = PhysicsCategory.meteor //physics body is earth
+        meteor.physicsBody?.contactTestBitMask = PhysicsCategory.earth //can bump with meteor
+        meteor.physicsBody?.collisionBitMask = PhysicsCategory.none //none
+//        meteor.physicsBody?.usesPreciseCollisionDetection = true //precise
         return meteor
     }
     
@@ -81,18 +82,23 @@ class GameScene: SKScene {
         let earth: SKSpriteNode = SKSpriteNode(imageNamed: "earth.png")
         earth.setScale(0.35) //scale it to 10% its original size
         earth.position = CGPoint(x: sceneWidth / 2, y: 0)
+        earth.zPosition = -1 //puts it in the back of the meteors
         earth.name = "earth"
         let earthRotating = SKAction.rotate(byAngle: .pi/3, duration: 1)
         earth.run(SKAction.repeatForever(earthRotating))
         //PHYSICS BODY
-        earth.physicsBody = SKPhysicsBody(circleOfRadius: earth.size.width/2)
-        earth.physicsBody?.isDynamic = true //not affected by outside physics engine
-        earth.physicsBody?.categoryBitMask = PhysicsCategory.earth //physics body is earth
-        earth.physicsBody?.contactTestBitMask = PhysicsCategory.meteor //can bump with meteor
-        earth.physicsBody?.collisionBitMask = PhysicsCategory.none //none
-        earth.physicsBody?.usesPreciseCollisionDetection = true //precise
-
+        earth.physicsBody = SKPhysicsBody(rectangleOf: earth.size) // create a physic body
+        earth.physicsBody?.isDynamic = true // physics engine will not control the movement of the meteor
+        earth.physicsBody?.categoryBitMask = PhysicsCategory.earth // the category bitmask tells what type of body our meteor is
+        earth.physicsBody?.contactTestBitMask = PhysicsCategory.meteor // this triggers something if our meteor collides with a physics body with a category bit mas of earth //listens to meteor and any contact with a physics body that has the physics category of earth
+        earth.physicsBody?.collisionBitMask = PhysicsCategory.none // collisionBitMask indicates what categories of objects this object that the physics engine handle contact responses to
         return earth
+    }
+    
+    func meteorDidCollideWithEarth(meteor: SKSpriteNode, earth: SKSpriteNode) {
+      print("Hit")
+      meteor.removeFromParent()
+      earth.removeFromParent()
     }
     
     func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
@@ -152,5 +158,22 @@ class GameScene: SKScene {
 }
 
 extension GameScene: SKPhysicsContactDelegate {
-    
+    func didBegin(_ contact: SKPhysicsContact) { //This method passes you the two bodies that collide
+        var firstBody: SKPhysicsBody
+        var secondBody: SKPhysicsBody
+        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
+            firstBody = contact.bodyA
+            secondBody = contact.bodyB
+        } else {
+            firstBody = contact.bodyB
+            secondBody = contact.bodyA
+        }
+     
+        if ((firstBody.categoryBitMask & PhysicsCategory.earth != 0) &&
+            (secondBody.categoryBitMask & PhysicsCategory.meteor != 0)) { //check if two bodies that collided are the earth and monster, then run our method
+            if let earth = firstBody.node as? SKSpriteNode, let meteor = secondBody.node as? SKSpriteNode {
+                meteorDidCollideWithEarth(meteor: meteor, earth: earth)
+            }
+        }
+    }
 }
