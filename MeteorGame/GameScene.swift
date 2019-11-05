@@ -23,7 +23,14 @@ class GameScene: SKScene {
         label.text = "Score: 0"
         label.color = .white
         label.fontSize = 50
-        
+        return label
+    }()
+    
+    var roundLabel: SKLabelNode = {
+        let label = SKLabelNode()
+        label.text = "Round: 1"
+        label.color = .white
+        label.fontSize = 20
         return label
     }()
     
@@ -57,11 +64,31 @@ class GameScene: SKScene {
         }
     }
     
+    
     func labelSetUp() {
         scoreLabel.position.x = view!.bounds.width / 2
         scoreLabel.position.y = view!.bounds.height - 80
         addChild(scoreLabel)
+        
+        roundLabel.position.x = view!.bounds.width / 10
+        roundLabel.position.y = view!.bounds.height - 40
+        addChild(roundLabel)
     }
+    
+    
+    func didTapAMeteor() { //increment our score, update scoreLabel and remove that touchedNode. Also decrement number of meteor
+        score += 1
+        scoreLabel.text = "Score: \(score)"
+        numberOfMeteor-=1
+    }
+    
+    
+    func nextRound() {
+        round+=1
+        roundLabel.text = "Round: \(round)"
+        startMeteorShower()
+    }
+    
     
     func randomNumber()-> CGFloat {
         //Width of the SKScene's view
@@ -72,45 +99,17 @@ class GameScene: SKScene {
         return randomNumber
     }
     
-    func createSquares(name: String) {
-        //TODO: Set up square properties
-        //1. Create a CGSize for the square with (width: 80, height: 80)
-        //2. Create a Square node with a texture of nil. a color of .green and the size we created above
-        //3. Set the squares name to the name we pass into this function
-        
-        
-        //TODO: Set up the Squares x and y positions
-        //1. Squares y positions shoud start at 40
-        //2. Squares x positon should use the randomNumber generator provided above
-        
-        //Create an action to move the square up the screen
-        let action = SKAction.customAction(withDuration: 2.0, actionBlock: { (square, _) in
-            //TODO: Set up the squares animation
-            //1. The squares y position should increase by 10
-            //2. Create an if statement that checks if the squares y position is >= to the screens height
-            //If it is remove the square and create a new square with the same name
-        })
-        
-        //TODO: Have the square run the above animation forever and add the square to the SKScene!
-    }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        //Loop through an array of touch values
         for touch in touches {
-            //Grab the position of that touch value
-            let positionInScene = touch.location(in: self)
-            
-            let location = touch.location(in: self)
+            let location = touch.location(in: self) //Grab the position of that touch value
             let touchedNode = self.atPoint(location)
             
-            if touchedNode.name == "meteor" { //check if we touched a node named meteor, if it is then increment our score, update scoreLabel and remove that touchedNode. Also decrement number of meteor
-                score += 1
-                scoreLabel.text = "Score: \(score)"
-                touchedNode.removeFromParent()
-                numberOfMeteor-=1
+            if touchedNode.name == "meteor" { //check if we touched a node named meteor
+                touchedNode.removeFromParent() //then remove it
+                didTapAMeteor()
                 if numberOfMeteor == 0 { //if number of meteor is 0 then incredement round and start another meteor shower
-                    round+=1
-                    startMeteorShower()
+                    nextRound()
                 }
             }
         }
