@@ -15,6 +15,7 @@
 		33454CBC23710373007739EF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 33454CBA23710373007739EF /* LaunchScreen.storyboard */; };
 		33454CC523713FE6007739EF /* Explosion.sks in Resources */ = {isa = PBXBuildFile; fileRef = 33454CC323713FE6007739EF /* Explosion.sks */; };
 		33454CC623713FE6007739EF /* Starfield.sks in Resources */ = {isa = PBXBuildFile; fileRef = 33454CC423713FE6007739EF /* Starfield.sks */; };
+		33454CC82371402B007739EF /* explosion.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 33454CC72371402B007739EF /* explosion.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		33454CBD23710373007739EF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		33454CC323713FE6007739EF /* Explosion.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Explosion.sks; sourceTree = "<group>"; };
 		33454CC423713FE6007739EF /* Starfield.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Starfield.sks; sourceTree = "<group>"; };
+		33454CC72371402B007739EF /* explosion.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = explosion.mp3; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 				33454CB323710370007739EF /* GameViewController.swift */,
 				33454CB523710370007739EF /* Main.storyboard */,
 				33454CC323713FE6007739EF /* Explosion.sks */,
+				33454CC72371402B007739EF /* explosion.mp3 */,
 				33454CC423713FE6007739EF /* Starfield.sks */,
 				33454CB823710373007739EF /* Assets.xcassets */,
 				33454CBA23710373007739EF /* LaunchScreen.storyboard */,
@@ -131,6 +134,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				33454CC82371402B007739EF /* explosion.mp3 in Resources */,
 				33454CB723710370007739EF /* Main.storyboard in Resources */,
 				33454CC523713FE6007739EF /* Explosion.sks in Resources */,
 				33454CC623713FE6007739EF /* Starfield.sks in Resources */,
