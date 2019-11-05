@@ -9,6 +9,13 @@
 import SpriteKit
 import GameplayKit
 
+struct PhysicsCategory {
+  static let none      : UInt32 = 0
+  static let all       : UInt32 = UInt32.max
+  static let meteor    : UInt32 = 0b1       // 1
+  static let earth     : UInt32 = 0b10      // 2
+}
+
 class GameScene: SKScene {
     var score = 0
     var round:Int = 1
@@ -29,8 +36,11 @@ class GameScene: SKScene {
     }()
     
     override func didMove(to view: SKView) {
+        physicsWorld.gravity = .zero
+        physicsWorld.contactDelegate = self
         startMeteorShower()
         labelSetUp()
+        addChild(createEarth()) //called it here so the meteors would be in the front
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -45,20 +55,44 @@ class GameScene: SKScene {
         }
     }
     
-    func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
+    func createMeteor() -> SKSpriteNode {
         let sceneWidth = view!.scene!.frame.width
-        for _ in 0..<round {
-            let meteor: SKSpriteNode = SKSpriteNode(imageNamed: "meteor.png")
-            meteor.setScale(0.1) //scale it to 10% its original size
-            let randomX:CGFloat = CGFloat.random(in: 0 ..< sceneWidth)
-            meteor.position = CGPoint(x: randomX, y: self.view!.frame.height)
-            meteor.name = "meteor"
-            addChild(meteor)
-            let randomDuration:TimeInterval = TimeInterval.random(in: 1.5 ..< 3.5)
-            let meteorFalling = SKAction.moveTo(y: -meteor.size.height / 2, duration: randomDuration)
-            meteor.run(meteorFalling)
+        let meteor: SKSpriteNode = SKSpriteNode(imageNamed: "meteor.png")
+        meteor.setScale(0.1) //scale it to 10% its original size
+        let randomX:CGFloat = CGFloat.random(in: 0 ..< sceneWidth)
+        meteor.position = CGPoint(x: randomX, y: self.view!.frame.height)
+        meteor.name = "meteor"
+        let randomDuration:TimeInterval = TimeInterval.random(in: 1.5 ..< 3.5)
+        let meteorFalling = SKAction.moveTo(y: -meteor.size.height / 2, duration: randomDuration)
+        meteor.run(meteorFalling)
 //            let meteorRemoving = SKAction.removeFromParent()
 //            meteor.run(SKAction.sequence([meteorFalling, meteorRemoving]))
+        //PHYSICSBODY
+        meteor.physicsBody = SKPhysicsBody(rectangleOf: meteor.size) // create a physic body
+        meteor.physicsBody?.isDynamic = true // physics engine will not control the movement of the meteor
+        meteor.physicsBody?.categoryBitMask = PhysicsCategory.meteor // the category bitmask tells what type of body our meteor is
+        meteor.physicsBody?.contactTestBitMask = PhysicsCategory.earth // this triggers something if our meteor collides with a physics body with a category bit mas of earth //listens to meteor and any contact with a physics body that has the physics category of earth
+        meteor.physicsBody?.collisionBitMask = PhysicsCategory.none // collisionBitMask indicates what categories of objects this object that the physics engine handle contact responses to
+        return meteor
+    }
+    
+    func createEarth() -> SKSpriteNode {
+        let sceneWidth = view!.scene!.frame.width
+        let earth: SKSpriteNode = SKSpriteNode(imageNamed: "earth.png")
+        earth.setScale(0.35) //scale it to 10% its original size
+        earth.zRotation = CGFloat.pi
+        earth.position = CGPoint(x: sceneWidth / 2, y: 0)
+        earth.name = "earth"
+//        let randomDuration:TimeInterval = TimeInterval.random(in: 1.5 ..< 3.5)
+//        let meteorFalling = SKAction.moveTo(y: -earth.size.height / 2, duration: randomDuration)
+//        earth.run(meteorFalling)
+        return earth
+    }
+    
+    func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
+        for _ in 0..<round {
+            let meteor = createMeteor()
+            addChild(meteor)
             meteors.append(meteor)
         }
     }
@@ -109,4 +143,8 @@ class GameScene: SKScene {
         guard let index = meteors.firstIndex(of: node) else { print("meteor index does not exist"); return }
         meteors.remove(at: index)
     }
+}
+
+extension GameScene: SKPhysicsContactDelegate {
+    
 }
