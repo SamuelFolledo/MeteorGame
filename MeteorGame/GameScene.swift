@@ -35,18 +35,11 @@ class GameScene: SKScene {
         label.fontSize = 20
         return label
     }()
+    var explosionEffect: SKEmitterNode!
+    var explosionSound: SKAction!
     
     override func didMove(to view: SKView) {
-        physicsWorld.gravity = .zero
-        physicsWorld.contactDelegate = self
-        bgStars = SKEmitterNode(fileNamed: "Starfield")
-        bgStars.position = CGPoint(x: 0, y: scene!.size.height)
-        bgStars.advanceSimulationTime(10) //advance the simulation
-        addChild(bgStars)
-        bgStars.zPosition = -2
-        startMeteorShower()
-        labelSetUp()
-        addChild(createEarth()) //called it here so the meteors would be in the front
+        setupGame()
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -62,7 +55,22 @@ class GameScene: SKScene {
         }
     }
     
-    func createMeteor() -> SKSpriteNode {
+    func setupGame() {
+        physicsWorld.gravity = .zero
+        physicsWorld.contactDelegate = self
+        explosionEffect = SKEmitterNode(fileNamed: "Explosion")!
+        explosionSound = SKAction.playSoundFileNamed("explosion.mp3", waitForCompletion: false)
+        bgStars = SKEmitterNode(fileNamed: "Starfield")
+        bgStars.position = CGPoint(x: 0, y: scene!.size.height)
+        bgStars.advanceSimulationTime(10) //advance the simulation
+        bgStars.zPosition = -2
+        addChild(bgStars)
+        startMeteorShower()
+        labelSetUp()
+        createEarth()
+    }
+    
+    func createMeteor() {
         let sceneWidth = view!.scene!.frame.width
         let meteor: SKSpriteNode = SKSpriteNode(imageNamed: "meteor.png")
         meteor.setScale(0.1) //scale it to 10% its original size
@@ -81,10 +89,11 @@ class GameScene: SKScene {
         meteor.physicsBody?.contactTestBitMask = PhysicsCategory.earth //can bump with meteor
         meteor.physicsBody?.collisionBitMask = PhysicsCategory.none //none
 //        meteor.physicsBody?.usesPreciseCollisionDetection = true //precise
-        return meteor
+        addChild(meteor)
+        meteors.append(meteor)
     }
     
-    func createEarth() -> SKSpriteNode {
+    func createEarth() {
         let sceneWidth = view!.scene!.frame.width
         let earth: SKSpriteNode = SKSpriteNode(imageNamed: "earth.png")
         earth.setScale(0.35) //scale it to 10% its original size
@@ -94,33 +103,29 @@ class GameScene: SKScene {
         let earthRotating = SKAction.rotate(byAngle: .pi/3, duration: 1)
         earth.run(SKAction.repeatForever(earthRotating))
         //PHYSICS BODY
-        earth.physicsBody = SKPhysicsBody(rectangleOf: earth.size) // create a physic body
+        earth.physicsBody = SKPhysicsBody(circleOfRadius: earth.size.width/2) // create a physic body
         earth.physicsBody?.isDynamic = true // physics engine will not control the movement of the meteor
         earth.physicsBody?.categoryBitMask = PhysicsCategory.earth // the category bitmask tells what type of body our meteor is
         earth.physicsBody?.contactTestBitMask = PhysicsCategory.meteor // this triggers something if our meteor collides with a physics body with a category bit mas of earth //listens to meteor and any contact with a physics body that has the physics category of earth
         earth.physicsBody?.collisionBitMask = PhysicsCategory.none // collisionBitMask indicates what categories of objects this object that the physics engine handle contact responses to
-        return earth
+        addChild(earth)
     }
     
     func meteorDidCollideWithEarth(meteor: SKSpriteNode, earth: SKSpriteNode) {
         print("Hit")
-        let explosion = SKEmitterNode(fileNamed: "Explosion")!
-        explosion.position = earth.position
-        addChild(explosion) //add the explosion to earth
-        run(SKAction.playSoundFileNamed("explosion.mp3", waitForCompletion: false)) //play sound
+        explosionEffect.position = earth.position
+        addChild(explosionEffect) //add the explosionEffect to earth
+        run(explosionSound) //play sound
         meteor.removeFromParent()
         earth.removeFromParent()
-        self.run(SKAction.wait(forDuration: 2)) { //wait 2 seconds before removing explosion
-            explosion.removeFromParent()
+        self.run(SKAction.wait(forDuration: 2)) { //wait 2 seconds before removing explosionEffect
+            self.explosionEffect.removeFromParent()
         }
-        
     }
     
     func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
         for _ in 0..<round {
-            let meteor = createMeteor()
-            addChild(meteor)
-            meteors.append(meteor)
+            createMeteor()
         }
     }
     
