@@ -13,6 +13,9 @@ class GameScene: SKScene {
     //Initialize score starting at 0
     var score = 0
     
+    var round:Int = 1
+    var numberOfMeteor: Int = 1
+    
     //Set up properties of the scoreLabel
     var scoreLabel: SKLabelNode = {
         let label = SKLabelNode()
@@ -27,20 +30,26 @@ class GameScene: SKScene {
         //Called when the scene has been displayed
         
         //TODO: Create three squares with the names one,two,three
-        let meteor: SKSpriteNode = SKSpriteNode(imageNamed: "meteor.png")
-        meteor.setScale(0.1) //scale it to 10% its original size
-        meteor.position = CGPoint(x: 10, y: self.view!.frame.height)
-        addChild(meteor)
-        let falling = SKAction.moveTo(y: 0, duration: 2)
-        meteor.run(falling)
+        startMeteorShower()
         
         //Setup the scoreLabel
         labelSetUp()
     }
     
-    
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+    }
+    
+    func startMeteorShower() {
+        for _ in 0..<round {
+            let meteor: SKSpriteNode = SKSpriteNode(imageNamed: "meteor.png")
+            meteor.setScale(0.1) //scale it to 10% its original size
+            meteor.position = CGPoint(x: 10, y: self.view!.frame.height)
+            meteor.name = "meteor"
+            addChild(meteor)
+            let falling = SKAction.moveTo(y: 0, duration: 2)
+            meteor.run(falling)
+        }
     }
     
     func labelSetUp() {
@@ -83,19 +92,21 @@ class GameScene: SKScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         //Loop through an array of touch values
         for touch in touches {
-            
             //Grab the position of that touch value
             let positionInScene = touch.location(in: self)
             
-            //Find the name for the node in that location
-            let name = self.atPoint(positionInScene).name
+            let location = touch.location(in: self)
+            let touchedNode = self.atPoint(location)
             
-            //Check if there is an node there.
-            if name != nil {
-                //TODO: Remove the square
-                //Remove node from parent view
-                //Increase the score by one
-                //Create the square again with the same name
+            if touchedNode.name == "meteor" { //check if we touched a node named meteor, if it is then increment our score, update scoreLabel and remove that touchedNode. Also decrement number of meteor
+                score += 1
+                scoreLabel.text = "\(score)"
+                touchedNode.removeFromParent()
+                numberOfMeteor-=1
+                if numberOfMeteor == 0 { //if number of meteor is 0 then incredement round and start another meteor shower
+                    round+=1
+                    startMeteorShower()
+                }
             }
         }
     }
