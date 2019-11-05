@@ -10,10 +10,10 @@ import SpriteKit
 import GameplayKit
 
 struct PhysicsCategory {
-  static let none      : UInt32 = 0
+  static let none      : UInt32 = 0x1 << 0
   static let all       : UInt32 = UInt32.max
-  static let meteor    : UInt32 = 0b1       // 1
-  static let earth     : UInt32 = 0b10      // 2
+  static let meteor    : UInt32 = 0x1 << 1
+  static let earth     : UInt32 = 0x1 << 2
 }
 
 class GameScene: SKScene {
@@ -169,8 +169,8 @@ extension GameScene: SKPhysicsContactDelegate {
             secondBody = contact.bodyA
         }
      
-        if ((firstBody.categoryBitMask & PhysicsCategory.earth != 0) &&
-            (secondBody.categoryBitMask & PhysicsCategory.meteor != 0)) { //check if two bodies that collided are the earth and monster, then run our method
+        if ((firstBody.categoryBitMask & PhysicsCategory.meteor != 0) &&
+            (secondBody.categoryBitMask & PhysicsCategory.earth != 0)) { //check if two bodies that collided are the earth and monster, then run our method
             if let earth = firstBody.node as? SKSpriteNode, let meteor = secondBody.node as? SKSpriteNode {
                 meteorDidCollideWithEarth(meteor: meteor, earth: earth)
             }
