@@ -134,6 +134,11 @@ class GameScene: SKScene {
         explodeEffect(from: meteor)
         earth.removeFromParent()
         checkHighScore()
+        askToPlayAgain()
+    }
+    
+    func askToPlayAgain() {
+        
     }
     
     func checkHighScore() {
@@ -192,7 +197,6 @@ class GameScene: SKScene {
         let viewsWidth = self.view!.bounds.width
         //Creates a random number from 0 to the viewsWidth
         let randomNumber = CGFloat.random(in: 0 ... viewsWidth)
-        
         return randomNumber
     }
     
@@ -211,7 +215,7 @@ class GameScene: SKScene {
     func explodeEffect(from node: SKSpriteNode) { //initialize our explosionEffect, position it with the node we passed, run sound effect, and remove the explosionEffect after a delay
         explosionEffect = SKEmitterNode(fileNamed: "Explosion")!
         explosionEffect.position = node.position
-        explosionEffect.zPosition = -1 //must put this explosion effect on the back of meteor that way other meteors are still clickable
+        explosionEffect.zPosition = 2 //must put this explosion effect on the back of meteor that way other meteors are still clickable
         addChild(explosionEffect)
         run(explosionSound)
         self.run(SKAction.wait(forDuration: 1)) { //wait 2 seconds before removing explosionEffect
