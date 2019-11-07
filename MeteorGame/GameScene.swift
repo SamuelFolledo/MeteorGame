@@ -17,7 +17,11 @@ struct PhysicsCategory {
 }
 
 class GameScene: SKScene {
-    var score = 0
+    var score:Int = 0 {
+        didSet{
+            scoreLabel.text = "Score: \(score)"
+        }
+    }
     var round:Int = 1
     var meteors:[SKSpriteNode] = []
     var bgStars:SKEmitterNode!
@@ -196,11 +200,10 @@ class GameScene: SKScene {
 //MARK: Touches Began
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            let location = touch.location(in: self) //Grab the position of that touch value
-            let touchedNode = self.atPoint(location)
+            let touchLocation = touch.location(in: self) //Grab the position of that touch value
+            let touchedNode = atPoint(touchLocation)
             if touchedNode.name == "meteor" { //check if we touched a node named meteor
                 score += 1
-                scoreLabel.text = "Score: \(score)"
                 explodeEffect(from: touchedNode as! SKSpriteNode)
             }
         }
@@ -212,7 +215,7 @@ class GameScene: SKScene {
         explosionEffect.zPosition = -1 //must put this explosion effect on the back of meteor that way other meteors are still clickable
         addChild(explosionEffect)
         run(explosionSound)
-        self.run(SKAction.wait(forDuration: 2)) { //wait 2 seconds before removing explosionEffect
+        self.run(SKAction.wait(forDuration: 1)) { //wait 2 seconds before removing explosionEffect
             self.explosionEffect.removeFromParent()
         }
         removeMeteor(node: node)
