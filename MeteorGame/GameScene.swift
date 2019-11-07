@@ -52,8 +52,9 @@ class GameScene: SKScene {
     }()
     var explosionEffect: SKEmitterNode!
     var explosionSound: SKAction!
-    var isGameOver: Bool = false
+    var isPlaying: Bool = false
     let kHIGHSCORE: String = "highScore"
+    var playAgainButton:SKSpriteNode = SKSpriteNode(imageNamed: "playButton.png")
     
     override func didMove(to view: SKView) {
         setupGame()
@@ -66,7 +67,7 @@ class GameScene: SKScene {
                 removeMeteor(node: meteor)
             }
         }
-        if meteors.count == 0 && !isGameOver {
+        if meteors.count == 0 && isPlaying {
             round += 1
             startMeteorShower()
         }
@@ -76,8 +77,9 @@ class GameScene: SKScene {
         physicsWorld.gravity = .zero
         physicsWorld.contactDelegate = self
         preloadFiles()
-        startMeteorShower()
         labelSetUp()
+        setupPlayButton()
+        showPlayButton()
         createEarth()
     }
     
@@ -95,6 +97,13 @@ class GameScene: SKScene {
         bgStars.advanceSimulationTime(10) //advance the simulation
         bgStars.zPosition = -2
         addChild(bgStars)
+    }
+    
+    func setupPlayButton() {
+        playAgainButton.size = CGSize(width: self.frame.size.width/2, height: self.frame.size.width/2)
+        playAgainButton.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2)
+        playAgainButton.name = "playAgainButton"
+        addChild(playAgainButton)
     }
     
     func createMeteor() {
@@ -138,15 +147,29 @@ class GameScene: SKScene {
     
     func meteorDidCollideWithEarth(meteor: SKSpriteNode, earth: SKSpriteNode) {
         print("Earth is hit, game over")
-        isGameOver = true
+        isPlaying = false
         explodeEffect(from: meteor)
         earth.removeFromParent()
         checkHighScore()
-        askToPlayAgain()
+        showPlayButton()
+        for meteor in meteors {
+            removeMeteor(node: meteor)
+        }
     }
     
-    func askToPlayAgain() {
-        
+    func showPlayButton() {
+        playAgainButton.isHidden = false
+    }
+    
+    func play() {
+        playAgainButton.isHidden = true
+        print("Play again!")
+        isPlaying = true
+        createEarth()
+        round=1
+        score=0
+//        setupGame()
+        startMeteorShower()
     }
     
     func checkHighScore() {
@@ -214,6 +237,8 @@ class GameScene: SKScene {
             if touchedNode.name == "meteor" { //check if we touched a node named meteor
                 score += 1
                 explodeEffect(from: touchedNode as! SKSpriteNode)
+            } else if touchedNode.name == "playAgainButton" {
+                play()
             }
         }
     }
