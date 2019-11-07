@@ -75,16 +75,26 @@ class GameScene: SKScene {
     func setupGame() {
         physicsWorld.gravity = .zero
         physicsWorld.contactDelegate = self
-//        explosionEffect = SKEmitterNode(fileNamed: "Explosion")! //preload explosion effect and sound so it won't cause any delay
+        preloadFiles()
+        startMeteorShower()
+        labelSetUp()
+        createEarth()
+    }
+    
+    func preloadFiles() {
+        do { //proper way to preload .sks file
+            let fileURL = Bundle.main.url(forResource: "Explosion", withExtension: "sks")!
+            let fileData = try Data(contentsOf: fileURL)
+            explosionEffect = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(fileData) as? SKEmitterNode
+        } catch {
+            print("didn't work")
+        }
         explosionSound = SKAction.playSoundFileNamed("explosion.mp3", waitForCompletion: false)
         bgStars = SKEmitterNode(fileNamed: "Starfield")
         bgStars.position = CGPoint(x: 0, y: scene!.size.height)
         bgStars.advanceSimulationTime(10) //advance the simulation
         bgStars.zPosition = -2
         addChild(bgStars)
-        startMeteorShower()
-        labelSetUp()
-        createEarth()
     }
     
     func createMeteor() {
@@ -97,8 +107,6 @@ class GameScene: SKScene {
         let randomDuration:TimeInterval = TimeInterval.random(in: 1.5 ..< 3.5)
         let meteorFalling = SKAction.moveTo(y: -meteor.size.height / 2, duration: randomDuration)
         meteor.run(meteorFalling)
-//            let meteorRemoving = SKAction.removeFromParent()
-//            meteor.run(SKAction.sequence([meteorFalling, meteorRemoving]))
         //PHYSICSBODY
         meteor.physicsBody = SKPhysicsBody(circleOfRadius: meteor.size.width/2)
         meteor.physicsBody?.isDynamic = true //not affected by outside physics engine
@@ -181,11 +189,9 @@ class GameScene: SKScene {
         scoreLabel.position.x = view!.bounds.width / 2
         scoreLabel.position.y = view!.bounds.height - 80
         addChild(scoreLabel)
-        
         dayLabel.position.x = view!.bounds.width / 8
         dayLabel.position.y = view!.bounds.height - 40
         addChild(dayLabel)
-        
         highScoreLabel.position.x = view!.bounds.width - highScoreLabel.frame.width / 2 - 10
         highScoreLabel.position.y = view!.bounds.height - 40
         addChild(highScoreLabel)
@@ -213,15 +219,22 @@ class GameScene: SKScene {
     }
     
     func explodeEffect(from node: SKSpriteNode) { //initialize our explosionEffect, position it with the node we passed, run sound effect, and remove the explosionEffect after a delay
-        explosionEffect = SKEmitterNode(fileNamed: "Explosion")!
-        explosionEffect.position = node.position
-        explosionEffect.zPosition = -1 //must put this explosion effect on the back of meteor that way other meteors are still clickable
-        addChild(explosionEffect)
+        addExplosionEmitter(point: node.position)
         run(explosionSound)
-        self.run(SKAction.wait(forDuration: 2)) { //wait 2 seconds before removing explosionEffect
-            self.explosionEffect.removeFromParent()
-        }
         removeMeteor(node: node)
+    }
+    
+    func addExplosionEmitter(point: CGPoint) { //copies preloaded explosion effect, and place it to meteor node's position
+        let emitterToAdd = explosionEffect.copy() as! SKEmitterNode
+        emitterToAdd.position = point
+        emitterToAdd.zPosition = -1
+        let addEmitterAction = SKAction.run({self.addChild(emitterToAdd)})
+        let wait = SKAction.wait(forDuration: TimeInterval(2)) //2 seconds wait
+        let remove = SKAction.run({
+            emitterToAdd.removeFromParent()
+        })
+        let sequence = SKAction.sequence([addEmitterAction, wait, remove])
+        self.run(sequence)
     }
     
     func removeMeteor(node: SKSpriteNode) { //remove meteor node and from meteors array
