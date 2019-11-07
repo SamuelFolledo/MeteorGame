@@ -80,7 +80,6 @@ class GameScene: SKScene {
         labelSetUp()
         setupPlayButton()
         showPlayButton()
-        createEarth()
     }
     
     func preloadFiles() {
@@ -163,12 +162,10 @@ class GameScene: SKScene {
     
     func play() {
         playAgainButton.isHidden = true
-        print("Play again!")
         isPlaying = true
-        createEarth()
         round=1
         score=0
-//        setupGame()
+        createEarth()
         startMeteorShower()
     }
     
