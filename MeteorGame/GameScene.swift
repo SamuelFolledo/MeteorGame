@@ -22,7 +22,11 @@ class GameScene: SKScene {
             scoreLabel.text = "Score: \(score)"
         }
     }
-    var round:Int = 1
+    var round:Int = 1 {
+        didSet {
+            dayLabel.text = "Day: \(round)"
+        }
+    }
     var meteors:[SKSpriteNode] = []
     var bgStars:SKEmitterNode!
     var scoreLabel: SKLabelNode = {
@@ -63,7 +67,7 @@ class GameScene: SKScene {
             }
         }
         if meteors.count == 0 && !isGameOver {
-            nextRound()
+            round += 1
             startMeteorShower()
         }
     }
@@ -101,7 +105,7 @@ class GameScene: SKScene {
         meteor.physicsBody?.categoryBitMask = PhysicsCategory.meteor //physics body is earth
         meteor.physicsBody?.contactTestBitMask = PhysicsCategory.earth //can bump with meteor
         meteor.physicsBody?.collisionBitMask = PhysicsCategory.none //none
-//        meteor.physicsBody?.usesPreciseCollisionDetection = true //precise
+        meteor.physicsBody?.usesPreciseCollisionDetection = true //precise
         addChild(meteor)
         meteors.append(meteor)
     }
@@ -181,11 +185,6 @@ class GameScene: SKScene {
         highScoreLabel.position.y = view!.bounds.height - 40
         addChild(highScoreLabel)
         highScoreLabel.text = "Highscore: \(UserDefaults.standard.integer(forKey: kHIGHSCORE))"
-    }
-    
-    func nextRound() {
-        round+=1
-        dayLabel.text = "Day: \(round)"
     }
     
     func randomNumber()-> CGFloat {
