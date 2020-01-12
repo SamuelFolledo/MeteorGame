@@ -26,3 +26,5 @@ written in Swift for my MOB1.1 class in Make School
 <img src="https://github.com/SamuelFolledo/MeteorGame/blob/master/screenshots/earthExplosion.PNG" width="465" height="828">
 
 ---
+
+License under the [MIT License](LICENSE)

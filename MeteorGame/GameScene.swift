@@ -176,7 +176,6 @@ class GameScene: SKScene {
             UserDefaults.standard.synchronize() //set the high score
             highScoreLabel.text = "Highscore: \(UserDefaults.standard.integer(forKey: kHIGHSCORE))" //put the highschore on text
         }
-        
     }
     
     func startMeteorShower() { //start another meteor shower: reset numberOfMeteor, and for each round, add more meteor nodes
